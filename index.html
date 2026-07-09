@@ -410,9 +410,26 @@
                 </div>
             </div>
 
-            <a href="app-release.apk" class="btn" style="display: inline-block;">
-                立即下载 APK
-            </a>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <a href="app-release.apk" class="btn" style="display: inline-block;">
+                    🤖 安卓版下载 APK
+                </a>
+                <a href="app-harmony.apk" class="btn btn-outline" style="display: inline-block;">
+                    📱 鸿蒙版下载 APK
+                </a>
+            </div>
+
+            <div style="background: #f0f4ff; border-radius: 12px; padding: 20px;">
+                <h4 style="font-size: 16px; margin-bottom: 12px; color: #1565C0;">📖 鸿蒙版使用说明</h4>
+                <p style="color: #555; font-size: 14px; line-height: 1.6;">
+                    鸿蒙版通过"网页快捷方式"实现图标伪装。创建快捷方式后，请按照提示复制链接，用浏览器打开并添加到桌面。点击桌面图标即可打开目标应用。
+                </p>
+                <ul style="margin-top: 12px; padding-left: 20px;">
+                    <li style="color: #555; font-size: 14px; margin-bottom: 8px;">选择主体应用 → 创建快捷方式 → 复制链接</li>
+                    <li style="color: #555; font-size: 14px; margin-bottom: 8px;">打开浏览器 → 粘贴链接 → 添加到桌面</li>
+                    <li style="color: #555; font-size: 14px;">点击桌面图标 → 自动打开目标应用</li>
+                </ul>
+            </div>
         </div>
         <!-- FAQ -->
         <div class="card">
@@ -436,6 +453,14 @@
             <div class="faq-item">
                 <div class="faq-q">Q: 软件是免费的吗？</div>
                 <div class="faq-a">A: 是的，软件完全免费，没有任何功能限制。如果觉得好用，欢迎打赏支持开发者。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Q: 鸿蒙版和安卓版有什么区别？</div>
+                <div class="faq-a">A: 安卓版可以直接创建桌面快捷方式；鸿蒙版通过网页快捷方式实现，需要将网页添加到桌面后才能使用。两种版本功能相同，只是实现方式不同。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Q: 鸿蒙版为什么需要浏览器？</div>
+                <div class="faq-a">A: 由于鸿蒙系统限制，安卓应用无法直接创建桌面快捷方式。我们采用网页快捷方式方案，通过浏览器将伪装图标添加到桌面，点击即可打开目标应用。</div>
             </div>
         </div>
 
