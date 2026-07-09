@@ -112,6 +112,8 @@
     
     <button class="action-btn" onclick="launchApp()">启动应用</button>
     
+    <p id="launchTip" class="tip" style="margin-top: 16px; margin-bottom: 16px;"></p>
+    
     <div class="tip">
         提示：请将此网页添加到桌面，<br>
         点击桌面图标即可快速启动目标应用
@@ -150,22 +152,50 @@
             loading.classList.remove('hidden');
             
             const schemes = [
-                `intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${packageName};launchFlags=0x10000000;end`,
-                `package:${packageName}`,
-                `market://details?id=${packageName}`
+                `intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${packageName};launchFlags=0x10000000;end`
             ];
+
+            const appSchemes = {
+                'org.telegram.messenger.web': ['tg://', 'telegram://'],
+                'com.tencent.mm': ['weixin://', 'wechat://'],
+                'com.alibaba.android.rimet': ['dingtalk://'],
+                'com.alipay.mobile': ['alipays://'],
+                'com.google.android.youtube': ['vnd.youtube://']
+            };
             
-            schemes.forEach((scheme, index) => {
-                setTimeout(() => {
-                    try {
-                        window.location.href = scheme;
-                    } catch (e) {}
-                }, index * 500);
-            });
+            if (appSchemes[packageName]) {
+                appSchemes[packageName].forEach(scheme => {
+                    schemes.unshift(scheme);
+                });
+            }
             
-            setTimeout(() => {
-                loading.classList.add('hidden');
-            }, 2000);
+            let triedCount = 0;
+            const tryNextScheme = () => {
+                if (triedCount >= schemes.length) {
+                    loading.classList.add('hidden');
+                    document.getElementById('launchTip').textContent = '无法直接启动应用，请手动打开目标应用';
+                    return;
+                }
+                
+                const scheme = schemes[triedCount];
+                triedCount++;
+                
+                try {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = scheme;
+                    document.body.appendChild(iframe);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                        setTimeout(tryNextScheme, 800);
+                    }, 1000);
+                } catch (e) {
+                    setTimeout(tryNextScheme, 500);
+                }
+            };
+            
+            tryNextScheme();
         }
         
         window.addEventListener('load', () => {
