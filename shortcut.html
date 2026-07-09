@@ -112,12 +112,21 @@
     
     <button class="action-btn" onclick="launchApp()">启动应用</button>
     
+    <div id="manualInput" style="display: none; width: 100%; max-width: 320px; margin-top: 16px;">
+        <input type="text" id="packageInput" placeholder="输入包名手动启动" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none;">
+        <button class="action-btn" onclick="manualLaunch()" style="width: 100%; margin-top: 10px;">手动启动</button>
+    </div>
+    
     <p id="launchTip" class="tip" style="margin-top: 16px; margin-bottom: 16px;"></p>
     
     <div class="tip">
         提示：请将此网页添加到桌面，<br>
         点击桌面图标即可快速启动目标应用
     </div>
+    
+    <button class="action-btn" onclick="toggleManualInput()" style="background: #f5f5f5; color: #333; margin-top: 10px;">
+        找不到应用？手动输入包名
+    </button>
 
     <script>
         const params = new URLSearchParams(window.location.search);
@@ -148,53 +157,138 @@
                 return;
             }
             
+            launchWithPackage(packageName);
+        }
+
+        function launchWithPackage(pkg) {
             const loading = document.getElementById('loading');
             loading.classList.remove('hidden');
-            
-            const schemes = [
-                `intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${packageName};launchFlags=0x10000000;end`
-            ];
 
             const appSchemes = {
                 'org.telegram.messenger.web': ['tg://', 'telegram://'],
+                'org.telegram.messenger': ['tg://', 'telegram://'],
                 'com.tencent.mm': ['weixin://', 'wechat://'],
+                'com.tencent.mobileqq': ['mqq://', 'qq://'],
+                'com.alipay.mobile': ['alipays://', 'alipay://'],
+                'com.taobao.taobao': ['taobao://', 'taobaoweb://'],
+                'com.taobao.idlefish': ['fleamarket://'],
+                'com.tmall.wireless': ['tmall://'],
+                'com.ss.android.ugc.aweme': ['snssdk1128://', 'snssdk://'],
+                'com.ss.android.ugc.aweme.lite': ['snssdk1128://'],
+                'com.xingin.xhs': ['xhsdiscover://', 'xhs://'],
+                'com.sina.weibo': ['sinaweibo://', 'weibo://'],
+                'com.eg.android.AlipayGphone': ['alipays://'],
+                'com.eg.android.AlipayGphoneRC': ['alipays://'],
+                'com.jingdong.app.mall': ['openapp.jdmobile://', 'jd://'],
+                'com.jingdong.app.mall.simplify': ['openapp.jdmobile://'],
+                'com.zhihu.android': ['zhihu://', 'zhihu://'],
+                'tv.danmaku.bili': ['bilibili://', 'bilidetail://'],
+                'com.smile.gifmaker': ['kwai://', 'snssdk1128://'],
+                'com.kuaishou.nebula': ['kwai://'],
+                'com.baidu.searchbox': ['baiduboxapp://', 'baidu://'],
+                'com.autonavi.minimap': ['androidamap://', 'amap://'],
+                'com.baidu.BaiduMap': ['baidumap://'],
+                'com.sankuai.meituan': ['imeituan://', 'meituan://'],
+                'com.dianping.v1': ['dianping://'],
+                'com.sdu.didi.psnger': ['OneTravel://', 'diditaxi://'],
+                'com.MobileTicket': ['cn.12306://', 'ctrip://'],
+                'com.netease.cloudmusic': ['orpheus://', 'neteasecloudmusic://'],
+                'com.tencent.qqmusic': ['qqmusic://', 'qqmusic://'],
+                'com.kugou.android': ['kugou://', 'kugouplayer://'],
+                'cn.kuwo.player': ['kwmusic://', 'kuwo://'],
+                'com.netease.mail': ['mailmaster://', 'netease://'],
+                'cn.wps.moffice_eng': ['wpsmoffice://', 'wps://'],
                 'com.alibaba.android.rimet': ['dingtalk://'],
-                'com.alipay.mobile': ['alipays://'],
-                'com.google.android.youtube': ['vnd.youtube://']
+                'com.tencent.wework': ['wxwork://'],
+                'com.ss.android.lark': ['sslocal://', 'lark://'],
+                'com.xunmeng.pinduoduo': ['pinduoduo://', 'yangkeduo://'],
+                'com.achievo.vivo.address': ['vivioaddress://'],
+                'com.netease.snailread': ['snailread://'],
+                'com.netease.yanxuan': ['yanxuan://'],
+                'com.taobao.trip': ['fliggy://', 'taobaotrip://'],
+                'ctrip.android.view': ['ctrip://', 'ctrip://'],
+                'com.ctrip english': ['ctrip://'],
+                'com.dianping.v1': ['dianping://'],
+                'com.sankuai.meituan': ['imeituan://'],
+                'com.hunantv.imgo.activity': ['mgtv://', 'hitv://'],
+                'com.iflytek.inputmethod': ['iflytek://'],
+                'com.baidu.input': ['baiduinput://'],
+                'com.sohu.sohuvideo': ['sohuvideo://'],
+                'com.youku.phone': ['youku://'],
+                'com.qiyi.video': ['iqiyi://'],
+                'com.tencent.qqlive': ['tenvideo://', 'qqlive://'],
+                'com.netease.mail': ['mailmaster://'],
+                'com.chinamobile.main.cloudvideo': ['cmvideo://'],
+                'com.cn21.mediacloud': ['mediacloud://'],
+                'com.huawei.himovie': ['huaweivideo://'],
+                'com.huawei.music': ['huaweimusic://'],
+                'com.android.mediacenter': ['huaweimusic://'],
+                'com.miui.player': ['miuimusic://'],
+                'com.miui.video': ['miuivideo://'],
+                'com.miui.calculator': ['miuicalculator://'],
+                'com.miui.notes': ['miuinotes://'],
+                'com.miui.weather2': ['miuiweather://'],
+                'com.android.calendar': ['calendar://'],
+                'com.android.calendar.cal': ['calendar://'],
+                'com.android.deskclock': ['deskclock://', 'alarmclock://'],
+                'com.android.settings': ['android.settings://'],
+                'com.android.camera': ['camera://'],
+                'com.android.camera2': ['camera://'],
+                'com.huawei.hmos.camera': ['camera://'],
+                'com.huawei.hmos.calendar': ['calendar://'],
+                'com.huawei.hmos.settings': ['android.settings://'],
+                'com.huawei.hmos.photos': ['photos://', 'gallery://'],
+                'com.android.gallery3d': ['gallery://'],
+                'com.huawei.hidisk': ['huaweifiles://'],
+                'com.android.documentsui': ['files://'],
+                'com.huawei.browser': ['huaweibrowser://'],
+                'com.android.browser': ['browser://'],
+                'com.android.chrome': ['googlechrome://'],
+                'com.google.android.chrome': ['googlechrome://'],
+                'org.mozilla.firefox': ['firefox://'],
+                'com.UCMobile': ['ucbrowser://'],
+                'com.tencent.mtt': ['qqbrowser://'],
+                'com.mi.globalbrowser': ['mibrowser://']
             };
-            
-            if (appSchemes[packageName]) {
-                appSchemes[packageName].forEach(scheme => {
-                    schemes.unshift(scheme);
+
+            const schemes = [];
+
+            if (appSchemes[pkg]) {
+                appSchemes[pkg].forEach(scheme => {
+                    schemes.push(scheme);
                 });
             }
-            
+
+            schemes.push(`intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${pkg};launchFlags=0x10000000;end`);
+
             let triedCount = 0;
             const tryNextScheme = () => {
                 if (triedCount >= schemes.length) {
                     loading.classList.add('hidden');
-                    document.getElementById('launchTip').textContent = '无法直接启动应用，请手动打开目标应用';
+                    document.getElementById('launchTip').innerHTML = '无法自动启动此应用<br>请尝试手动输入URL Scheme<br>或直接打开目标应用';
                     return;
                 }
-                
+
                 const scheme = schemes[triedCount];
                 triedCount++;
-                
+
+                document.getElementById('launchTip').textContent = `正在尝试: ${scheme}`;
+
                 try {
                     const iframe = document.createElement('iframe');
                     iframe.style.display = 'none';
                     iframe.src = scheme;
                     document.body.appendChild(iframe);
-                    
+
                     setTimeout(() => {
                         document.body.removeChild(iframe);
-                        setTimeout(tryNextScheme, 800);
+                        setTimeout(tryNextScheme, 1000);
                     }, 1000);
                 } catch (e) {
                     setTimeout(tryNextScheme, 500);
                 }
             };
-            
+
             tryNextScheme();
         }
         
@@ -207,6 +301,19 @@
                 setTimeout(launchApp, 800);
             }
         });
+
+        function toggleManualInput() {
+            const manualInput = document.getElementById('manualInput');
+            manualInput.style.display = manualInput.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function manualLaunch() {
+            const input = document.getElementById('packageInput');
+            const manualPackage = input.value.trim();
+            if (manualPackage) {
+                launchWithPackage(manualPackage);
+            }
+        }
     </script>
 </body>
 </html>
