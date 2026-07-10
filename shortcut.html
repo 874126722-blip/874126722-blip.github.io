@@ -110,11 +110,13 @@
     <h1 id="shortcutTitle">图标伪装</h1>
     <p class="subtitle">点击下方按钮尝试启动应用</p>
     
-    <button class="action-btn" onclick="launchApp()">启动应用</button>
+    <button class="action-btn" onclick="launchApp()">显示启动方式</button>
+    
+    <div id="schemeList" style="width: 100%; max-width: 320px; margin-top: 16px;"></div>
     
     <div id="manualInput" style="display: none; width: 100%; max-width: 320px; margin-top: 16px;">
         <input type="text" id="packageInput" placeholder="输入包名手动启动" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none;">
-        <button class="action-btn" onclick="manualLaunch()" style="width: 100%; margin-top: 10px;">手动启动</button>
+        <button class="action-btn" onclick="manualLaunch()" style="width: 100%; margin-top: 10px;">显示启动方式</button>
     </div>
     
     <div id="schemeInput" style="display: none; width: 100%; max-width: 320px; margin-top: 16px;">
@@ -310,35 +312,18 @@
             schemes.push(`intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${pkg};launchFlags=0x10000000;end`);
             schemes.push(`market://details?id=${pkg}`);
 
-            let triedCount = 0;
-            const tryNextScheme = () => {
-                if (triedCount >= schemes.length) {
-                    loading.classList.add('hidden');
-                    document.getElementById('launchTip').innerHTML = '无法自动启动此应用<br>请尝试手动输入URL Scheme<br>或直接打开目标应用';
-                    return;
-                }
+            document.getElementById('launchTip').innerHTML = '请点击下方按钮尝试启动<br>如果未打开，请点击"换一种方式"';
 
-                const scheme = schemes[triedCount];
-                triedCount++;
-
-                document.getElementById('launchTip').textContent = `正在尝试: ${scheme}`;
-
-                try {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = scheme;
-                    document.body.appendChild(iframe);
-
-                    setTimeout(() => {
-                        document.body.removeChild(iframe);
-                        setTimeout(tryNextScheme, 800);
-                    }, 1000);
-                } catch (e) {
-                    setTimeout(tryNextScheme, 500);
-                }
-            };
-
-            tryNextScheme();
+            const schemeList = document.getElementById('schemeList');
+            schemeList.innerHTML = '';
+            schemes.forEach((scheme, index) => {
+                const btn = document.createElement('a');
+                btn.href = scheme;
+                btn.className = 'action-btn scheme-btn';
+                btn.textContent = `方式 ${index + 1}: ${scheme.split('://')[0]}://`;
+                btn.style.cssText = 'display:block;margin:6px 0;background:#42a5f5;color:white;text-decoration:none;';
+                schemeList.appendChild(btn);
+            });
         }
         
         window.addEventListener('load', () => {
@@ -347,7 +332,7 @@
             }, 500);
             
             if (packageName) {
-                setTimeout(launchApp, 800);
+                launchApp();
             }
         });
 
@@ -373,25 +358,8 @@
             const input = document.getElementById('schemeInputField');
             const customScheme = input.value.trim();
             if (customScheme) {
-                const loading = document.getElementById('loading');
-                loading.classList.remove('hidden');
-                document.getElementById('launchTip').textContent = `正在尝试: ${customScheme}`;
-                
-                try {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = customScheme;
-                    document.body.appendChild(iframe);
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(iframe);
-                        loading.classList.add('hidden');
-                        document.getElementById('launchTip').textContent = '尝试完成，请查看是否已打开应用';
-                    }, 1500);
-                } catch (e) {
-                    loading.classList.add('hidden');
-                    document.getElementById('launchTip').textContent = '尝试失败，请检查Scheme格式';
-                }
+                document.getElementById('launchTip').textContent = `正在跳转: ${customScheme}`;
+                window.location.href = customScheme;
             }
         }
     </script>
